@@ -4,6 +4,8 @@
 # ============================================================
 
 from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / "data"
 
 import pandas as pd
 import numpy as np
@@ -674,13 +676,12 @@ iframe[title="streamlit.components.v1.html"]:hover {
 # 2. DATA LOADING
 # ============================================================
 
-DATA_DIR = Path(__file__).parent / "data"
 
 
 @st.cache_data
 def load_data():
 
-    orders = pd.read_csv(DATA_DIR / "orders_dataset.csv")
+    orders_df = pd.read_csv(DATA_DIR / "orders_dataset.csv")
     reviews = pd.read_csv(DATA_DIR / "order_reviews_dataset.csv")
     items = pd.read_csv(DATA_DIR / "order_items_dataset.csv")
     products = pd.read_csv(DATA_DIR / "products_dataset.csv")
@@ -703,8 +704,8 @@ def load_data():
     ]
 
     for column in order_date_columns:
-        orders[column] = pd.to_datetime(
-            orders[column], errors="coerce"
+        orders_df[column] = pd.to_datetime(
+            orders_df[column], errors="coerce"
         )
 
     for column in review_date_columns:
@@ -724,7 +725,7 @@ def load_data():
     )
 
     # Prepare delivery analysis
-    q1 = orders.merge(
+    q1 = orders_df.merge(
         review_agg,
         on="order_id",
         how="inner"
@@ -748,7 +749,7 @@ def load_data():
     )
 
     # Prepare category analysis
-    q2_orders = orders.merge(
+    q2_orders = orders_df.merge(
         review_agg,
         on="order_id",
         how="inner"
@@ -785,7 +786,7 @@ def load_data():
         subset=["order_id", "category_name"]
     )
 
-    return orders, reviews, items, products, translation, q1, q2
+    return orders_df, reviews, items, products, translation, q1, q2
 
 
 try:
